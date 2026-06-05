@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\UserRole;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,12 +26,31 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
-            'remember_token' => Str::random(10),
+            'f_name'        => fake()->firstName(),
+            'l_name'        => fake()->lastName(),
+            'email'         => fake()->unique()->safeEmail(),
+            'password'      => Hash::make('password'),
+            'role'          => UserRole::CUSTOMER,
+            'gender'        => fake()->randomElement(['male', 'female']),
+            'date_of_birth' => fake()->dateTimeBetween('-50 years', '-18 years'),
         ];
+    }
+
+    // ======= States =======
+
+    public function admin(): static
+    {
+        return $this->state(['role' => UserRole::ADMIN]);
+    }
+
+    public function staff(): static
+    {
+        return $this->state(['role' => UserRole::STAFF]);
+    }
+
+    public function delivery(): static
+    {
+        return $this->state(['role' => UserRole::DELIVERY]);
     }
 
     /**

@@ -52,6 +52,18 @@ class AuthController extends Controller
         ], 200);
     }
 
+    // ======= Logout =======
+    public function logout(): JsonResponse
+    {
+        $this->authService->logout();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'You have been logged out successfully.',
+
+        ], 200);
+    }
+
     // ======= Refresh =======
     public function refresh(): JsonResponse
     {

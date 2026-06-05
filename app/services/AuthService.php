@@ -49,6 +49,12 @@ class AuthService
         return $this->buildTokenResponse(auth('api')->user(), $token);
     }
 
+    // ======= Logout =======
+    public function logout(): void
+    {
+        auth('api')->logout();
+    }
+
     // ======= Refresh =======
     public function refresh(): array
     {
