@@ -18,7 +18,8 @@ class MenuItemSizePriceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'size'  => fake()->randomElement(['small', 'medium', 'large']),
+            'price' => fake()->randomFloat(2, 5, 100),
         ];
     }
 }

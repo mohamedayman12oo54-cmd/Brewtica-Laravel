@@ -23,7 +23,7 @@ class SubCategory extends Model
 
     public function mainCategory(): BelongsTo
     {
-        return $this->belongsTo(Main_Category::class);
+        return $this->belongsTo(Main_Category::class, 'main_category_id');
     }
 
     public function subSubCategories(): HasMany
