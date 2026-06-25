@@ -38,4 +38,40 @@ class ProfileTest extends TestCase
                      ]
                  ]);
     }
+
+    /** @test */
+    public function test_guest_cannot_view_profile(): void
+    {
+        $this->getJson('/api/profile')
+             ->assertStatus(401);
+    }
+
+    // ==========================================
+    // UPDATE PROFILE TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_update_their_profile(): void
+    {
+        $user = $this->createCustomer();
+
+        $response = $this->actingAs($user, 'api')
+                         ->patchJson('/api/profile', [
+                             'f_name' => 'NewName',
+                             'city'   => 'Alexandria',
+                         ]);
+
+        $response->assertStatus(200)
+                 ->assertJson(['status' => 'success']);
+
+        $this->assertDatabaseHas('users', [
+            'id'     => $user->id,
+            'f_name' => 'NewName',
+        ]);
+
+        $this->assertDatabaseHas('customers', [
+            'user_id' => $user->id,
+            'city'    => 'Alexandria',
+        ]);
+    }
 }

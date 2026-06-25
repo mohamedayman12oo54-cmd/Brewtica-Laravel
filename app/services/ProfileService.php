@@ -5,6 +5,7 @@ namespace App\services;
 use App\Jobs\SendPasswordChangedNotificationJob;
 use App\Models\User;
 use App\Models\UserPhone;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileService
