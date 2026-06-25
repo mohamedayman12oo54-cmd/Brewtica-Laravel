@@ -156,4 +156,47 @@ class FavoriteTest extends TestCase
              ->postJson('/api/favorites/99999')
              ->assertStatus(404);
     }
+
+    // ==========================================
+    // DELETE TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_remove_favorite_directly(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        Favorite::factory()->create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+
+        $this->actingAs($user, 'api')
+             ->deleteJson("/api/favorites/{$item->id}")
+             ->assertStatus(200)
+             ->assertJson(['status' => 'success']);
+
+        $this->assertDatabaseMissing('favorites', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+    }
+
+    /** @test */
+    public function test_customer_cannot_remove_another_users_favorite(): void
+    {
+        $user1 = $this->createCustomer();
+        $user2 = $this->createCustomer();
+        $item  = $this->createMenuItem();
+
+        Favorite::factory()->create([
+            'user_id'      => $user2->id,
+            'menu_item_id' => $item->id,
+        ]);
+
+        $this->actingAs($user1, 'api')
+             ->deleteJson("/api/favorites/{$item->id}")
+             ->assertStatus(404);
+    }
 }
