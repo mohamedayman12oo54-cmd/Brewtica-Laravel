@@ -67,4 +67,30 @@ class FavoriteTest extends TestCase
                      ]
                  ]);
     }
+
+    /** @test */
+    public function test_customer_sees_only_their_own_favorites(): void
+    {
+        $user1 = $this->createCustomer();
+        $user2 = $this->createCustomer();
+        $item  = $this->createMenuItem();
+
+        Favorite::factory()->create([
+            'user_id'      => $user2->id,
+            'menu_item_id' => $item->id,
+        ]);
+
+        $response = $this->actingAs($user1, 'api')
+                         ->getJson('/api/favorites');
+
+        $response->assertStatus(200)
+                 ->assertJson(['data' => []]);
+    }
+
+    /** @test */
+    public function test_guest_cannot_view_favorites(): void
+    {
+        $this->getJson('/api/favorites')
+             ->assertStatus(401);
+    }
 }
