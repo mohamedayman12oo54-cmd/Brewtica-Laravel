@@ -93,4 +93,67 @@ class FavoriteTest extends TestCase
         $this->getJson('/api/favorites')
              ->assertStatus(401);
     }
+
+    // ==========================================
+    // TOGGLE TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_add_item_to_favorites(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        $response = $this->actingAs($user, 'api')
+                         ->postJson("/api/favorites/{$item->id}");
+
+        $response->assertStatus(200)
+                 ->assertJson([
+                     'status' => 'success',
+                     'action' => 'added',
+                 ]);
+
+        $this->assertDatabaseHas('favorites', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+    }
+
+    /** @test */
+    public function test_customer_can_remove_item_from_favorites_via_toggle(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        // ضيفه الأول
+        Favorite::factory()->create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+
+        // Toggle تاني = يشيله
+        $response = $this->actingAs($user, 'api')
+                         ->postJson("/api/favorites/{$item->id}");
+
+        $response->assertStatus(200)
+                 ->assertJson([
+                     'status' => 'success',
+                     'action' => 'removed',
+                 ]);
+
+        $this->assertDatabaseMissing('favorites', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+    }
+
+    /** @test */
+    public function test_toggle_returns_404_for_nonexistent_item(): void
+    {
+        $user = $this->createCustomer();
+
+        $this->actingAs($user, 'api')
+             ->postJson('/api/favorites/99999')
+             ->assertStatus(404);
+    }
 }
