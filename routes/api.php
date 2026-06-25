@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Favorite\FavoriteController;
 use App\Http\Controllers\Api\Menu\MenuController;
 use App\Http\Controllers\Api\Profile\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -34,4 +35,11 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
     Route::post('/phones', [ProfileController::class, 'storePhone']);
     Route::patch('/phones/{id}/primary', [ProfileController::class, 'setPrimary']);
     Route::delete('/phones/{id}', [ProfileController::class, 'deletePhone']);
+});
+
+// ======= Favorites Routes (Protected) =======
+Route::middleware('auth:api')->group(function () {
+    Route::get('favorite', [FavoriteController::class, 'show']);
+    Route::post('favorite/{menuItemId}', [FavoriteController::class, 'toggle']);
+    Route::delete('favorite/{menuItemId}', [FavoriteController::class, 'remove']);
 });
