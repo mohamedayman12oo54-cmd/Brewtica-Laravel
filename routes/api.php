@@ -39,7 +39,7 @@ Route::middleware('auth:api')->prefix('profile')->group(function () {
 
 // ======= Favorites Routes (Protected) =======
 Route::middleware('auth:api')->group(function () {
-    Route::get('favorite', [FavoriteController::class, 'show']);
+    Route::get('favorites', [FavoriteController::class, 'show']);
     Route::post('favorite/{menuItemId}', [FavoriteController::class, 'toggle']);
     Route::delete('favorite/{menuItemId}', [FavoriteController::class, 'remove']);
 });
