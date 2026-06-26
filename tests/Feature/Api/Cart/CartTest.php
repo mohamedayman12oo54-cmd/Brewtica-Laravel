@@ -125,4 +125,122 @@ class CartTest extends TestCase
         $response->assertStatus(200)
                  ->assertJson(['data' => ['items_count' => 0]]);
     }
+
+    // ==========================================
+    // ADD TO CART TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_add_item_to_cart(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        $response = $this->actingAs($user, 'api')
+                         ->postJson('/api/cart', [
+                             'menu_item_id' => $item->id,
+                             'size'         => 'medium',
+                             'quantity'     => 1,
+                         ]);
+
+        $response->assertStatus(201);
+
+        $this->assertDatabaseHas('carts', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 1,
+        ]);
+    }
+
+    /** @test */
+    public function test_adding_same_item_same_size_increments_quantity(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        // ضيفه المرة الأولى
+        Cart::create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 1,
+        ]);
+
+        // ضيفه تاني بنفس الـ size
+        $this->actingAs($user, 'api')
+             ->postJson('/api/cart', [
+                 'menu_item_id' => $item->id,
+                 'size'         => 'medium',
+                 'quantity'     => 2,
+             ]);
+
+        // المفروض الـ quantity تبقى 3 مش row جديد
+        $this->assertDatabaseHas('carts', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 3,
+        ]);
+
+        // التأكد إنه مش عمل row جديد
+        $this->assertEquals(
+            1,
+            Cart::where('user_id', $user->id)
+                ->where('menu_item_id', $item->id)
+                ->where('size', 'medium')
+                ->count()
+        );
+    }
+
+    /** @test */
+    public function test_adding_same_item_different_size_creates_new_row(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        Cart::create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'small',
+            'quantity'     => 1,
+        ]);
+
+        $this->actingAs($user, 'api')
+             ->postJson('/api/cart', [
+                 'menu_item_id' => $item->id,
+                 'size'         => 'large', // ← size مختلفة
+                 'quantity'     => 1,
+             ]);
+
+        // المفروض يكون عندنا row تاني
+        $this->assertEquals(
+            2,
+            Cart::where('user_id', $user->id)
+                ->where('menu_item_id', $item->id)
+                ->count()
+        );
+    }
+
+    /** @test */
+    public function test_cannot_add_item_with_unavailable_size(): void
+    {
+        $user = $this->createCustomer();
+
+        // item عنده small بس
+        $item = $this->createMenuItem([
+            ['size' => 'small', 'price' => 25.00],
+        ]);
+
+        $response = $this->actingAs($user, 'api')
+                         ->postJson('/api/cart', [
+                             'menu_item_id' => $item->id,
+                             'size'         => 'large', // ← مش متاحة
+                             'quantity'     => 1,
+                         ]);
+
+        $response->assertStatus(422);
+    }
+
+    
 }
