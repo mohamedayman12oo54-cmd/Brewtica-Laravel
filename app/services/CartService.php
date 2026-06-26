@@ -58,7 +58,10 @@ class CartService
 
         if($cartItem){
 
-            $cartItem->increment('quantity', $quantity);
+            $user->cart()
+                 ->where('menu_item_id', $data['menu_item_id'])
+                 ->where('size', $data['size'])
+                 ->increment('quantity', $quantity);
 
         } else {
 
