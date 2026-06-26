@@ -339,4 +339,23 @@ class CartTest extends TestCase
         $this->assertEquals(0, Cart::where('user_id', $user->id)->count());
     }
 
+    /** @test */
+    public function test_customer_cannot_modify_another_users_cart(): void
+    {
+        $user1 = $this->createCustomer();
+        $user2 = $this->createCustomer();
+        $item  = $this->createMenuItem();
+
+        Cart::create([
+            'user_id'      => $user2->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 1,
+        ]);
+
+        $this->actingAs($user1, 'api')
+             ->patchJson("/api/cart/{$item->id}/medium", ['quantity' => 99])
+             ->assertStatus(404);
+    }
+
 }
