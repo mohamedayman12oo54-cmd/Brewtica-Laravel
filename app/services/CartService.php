@@ -88,13 +88,17 @@ class CartService
             return ['success' => false, 'reason' => 'not_found'];
         }
 
+        $query = $user->cart()
+                      ->where('menu_item_id', $menuItemId)
+                      ->where('size', $size);
+
         if ($quantity === 0) {
             // لو الـ quantity وصلت 0 → امسح الـ item
-            $cartItem->delete();
+            $query->delete();
             return ['success' => true, 'action' => 'removed'];
         }
 
-        $cartItem->update(['quantity' => $quantity]);
+        $query->update(['quantity' => $quantity]);
         return ['success' => true, 'action' => 'updated'];
     }
 
