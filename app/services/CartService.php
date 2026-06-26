@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\MenuItemSizePrice;
 use App\Models\User;
+use App\OrderSize;
 
 class CartService
 {
@@ -113,10 +114,10 @@ class CartService
     }
 
     // ======= Helper: Get Price =======
-    public function getPrice(int $menuItemId, string $size): float|null
+    public function getPrice(int $menuItemId, OrderSize|string $size): float|null
     {
         $sizePrice = MenuItemSizePrice::where('menu_item_id', $menuItemId)
-                                      ->where('size', $size)
+                                      ->where('size', $size instanceof OrderSize ? $size->value : $size)
                                       ->first();
 
         return $sizePrice?->price;
