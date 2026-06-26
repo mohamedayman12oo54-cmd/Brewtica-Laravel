@@ -242,5 +242,58 @@ class CartTest extends TestCase
         $response->assertStatus(422);
     }
 
+    // ==========================================
+    // UPDATE CART TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_update_cart_item_quantity(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        Cart::create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 1,
+        ]);
+
+        $this->actingAs($user, 'api')
+             ->patchJson("/api/cart/{$item->id}/medium", ['quantity' => 5])
+             ->assertStatus(200);
+
+        $this->assertDatabaseHas('carts', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'quantity'     => 5,
+        ]);
+    }
+
+    /** @test */
+    public function test_setting_quantity_to_zero_removes_item(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        Cart::create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 2,
+        ]);
+
+        $response = $this->actingAs($user, 'api')
+                         ->patchJson("/api/cart/{$item->id}/medium", ['quantity' => 0]);
+
+        $response->assertStatus(200)
+                 ->assertJson(['action' => 'removed']);
+
+        $this->assertDatabaseMissing('carts', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+    }
+
     
 }
