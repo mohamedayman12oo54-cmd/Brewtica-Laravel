@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Cart\CartController;
 use App\Http\Controllers\Api\Favorite\FavoriteController;
 use App\Http\Controllers\Api\Menu\MenuController;
 use App\Http\Controllers\Api\Profile\ProfileController;
@@ -42,4 +43,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('favorites', [FavoriteController::class, 'show']);
     Route::post('favorites/{menuItemId}', [FavoriteController::class, 'toggle']);
     Route::delete('favorites/{menuItemId}', [FavoriteController::class, 'remove']);
+});
+
+// ======= Cart Routes (Protected) =======
+Route::middleware('auth:api')->prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index']);
+    Route::post('/', [CartController::class, 'store']);
+    Route::patch('/{menuItemId}/{size}', [CartController::class, 'update']);
+    Route::delete('/{menuItemId}/{size}', [CartController::class, 'destroy']);
+    Route::delete('/', [CartController::class, 'clear']);
 });
