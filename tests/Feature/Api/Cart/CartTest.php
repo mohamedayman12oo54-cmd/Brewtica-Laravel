@@ -295,5 +295,48 @@ class CartTest extends TestCase
         ]);
     }
 
-    
+    // ==========================================
+    // DELETE TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_remove_item_from_cart(): void
+    {
+        $user = $this->createCustomer();
+        $item = $this->createMenuItem();
+
+        Cart::create([
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+            'size'         => 'medium',
+            'quantity'     => 1,
+        ]);
+
+        $this->actingAs($user, 'api')
+             ->deleteJson("/api/cart/{$item->id}/medium")
+             ->assertStatus(200);
+
+        $this->assertDatabaseMissing('carts', [
+            'user_id'      => $user->id,
+            'menu_item_id' => $item->id,
+        ]);
+    }
+
+    /** @test */
+    public function test_customer_can_clear_entire_cart(): void
+    {
+        $user  = $this->createCustomer();
+        $item1 = $this->createMenuItem();
+        $item2 = $this->createMenuItem();
+
+        Cart::create(['user_id' => $user->id, 'menu_item_id' => $item1->id, 'size' => 'small',  'quantity' => 1]);
+        Cart::create(['user_id' => $user->id, 'menu_item_id' => $item2->id, 'size' => 'medium', 'quantity' => 2]);
+
+        $this->actingAs($user, 'api')
+             ->deleteJson('/api/cart')
+             ->assertStatus(200);
+
+        $this->assertEquals(0, Cart::where('user_id', $user->id)->count());
+    }
+
 }
