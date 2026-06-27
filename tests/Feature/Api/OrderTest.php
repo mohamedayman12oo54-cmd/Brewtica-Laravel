@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Main_Category;
 use App\Models\MenuItem;
 use App\Models\MenuItemSizePrice;
+use App\Models\Order;
 use App\Models\SubCategory;
 use App\Models\SubSubCategory;
 use App\Models\User;
@@ -132,5 +133,43 @@ class OrderTest extends TestCase
             'menu_item_id' => $item->id,
             'price'        => 35.00, // ← مش 99
         ]);
+    }
+
+    // ==========================================
+    // GET ORDERS TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_view_their_orders(): void
+    {
+        $user = $this->createCustomer();
+
+        Order::factory()->create(['customer_id' => $user->customer->id]);
+
+        $response = $this->actingAs($user, 'api')
+                         ->getJson('/api/orders');
+
+        $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'status',
+                     'data' => [
+                         '*' => ['id', 'status', 'total_amount', 'created_at']
+                     ]
+                 ]);
+    }
+
+    /** @test */
+    public function test_customer_sees_only_their_own_orders(): void
+    {
+        $user1 = $this->createCustomer();
+        $user2 = $this->createCustomer();
+
+        Order::factory()->create(['customer_id' => $user2->customer->id]);
+
+        $response = $this->actingAs($user1, 'api')
+                         ->getJson('/api/orders');
+
+        $response->assertStatus(200)
+                 ->assertJson(['data' => []]);
     }
 }
