@@ -2,9 +2,12 @@
 
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Cart\CartController;
+use App\Http\Controllers\Api\Delivery\DeliveryController;
 use App\Http\Controllers\Api\Favorite\FavoriteController;
 use App\Http\Controllers\Api\Menu\MenuController;
 use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Staff\StaffOrderController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -53,3 +56,27 @@ Route::middleware('auth:api')->prefix('cart')->group(function () {
     Route::delete('/{menuItemId}/{size}', [CartController::class, 'destroy']);
     Route::delete('/', [CartController::class, 'clear']);
 });
+
+// ======= Customer Order Routes =======
+Route::middleware('auth:api')->group(function () {
+    Route::post('orders',         [OrderController::class, 'store']);
+    Route::get('orders',          [OrderController::class, 'index']);
+    Route::get('orders/{id}',     [OrderController::class, 'show']);
+    Route::delete('orders/{id}',  [OrderController::class, 'destroy']);
+});
+
+// ======= Staff Routes =======
+Route::middleware(['auth:api', 'role:staff,admin'])
+     ->prefix('staff')
+     ->group(function () {
+         Route::get('orders',                     [StaffOrderController::class, 'index']);
+         Route::patch('orders/{id}/status',       [StaffOrderController::class, 'updateStatus']);
+     });
+
+// ======= Delivery Routes =======
+Route::middleware(['auth:api', 'role:delivery,admin'])
+     ->prefix('delivery')
+     ->group(function () {
+         Route::get('deliveries',                 [DeliveryController::class, 'index']);
+         Route::patch('deliveries/{id}/status',   [DeliveryController::class, 'updateStatus']);
+     });
