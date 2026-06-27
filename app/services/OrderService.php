@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Jobs\SendOrderConfirmationJob;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
