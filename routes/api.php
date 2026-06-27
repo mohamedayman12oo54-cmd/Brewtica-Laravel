@@ -6,8 +6,8 @@ use App\Http\Controllers\Api\Delivery\DeliveryController;
 use App\Http\Controllers\Api\Favorite\FavoriteController;
 use App\Http\Controllers\Api\Menu\MenuController;
 use App\Http\Controllers\Api\Profile\ProfileController;
+use App\Http\Controllers\Api\Order\OrderController;
 use App\Http\Controllers\Api\Staff\StaffOrderController;
-use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 
