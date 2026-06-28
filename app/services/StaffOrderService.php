@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Order;
+use App\OrderStatus;
 
 class StaffOrderService
 {
@@ -43,8 +44,10 @@ class StaffOrderService
     }
 
     // ======= Status Transition Logic =======
-    private function getAllowedTransitions(string $currentStatus): array
+    private function getAllowedTransitions(OrderStatus|string $currentStatus): array
     {
+        $currentStatus = $currentStatus instanceof OrderStatus ? $currentStatus->value : $currentStatus;
+
         return match($currentStatus) {
             'pending'          => ['preparing', 'cancelled'],
             'preparing'        => ['ready'],
