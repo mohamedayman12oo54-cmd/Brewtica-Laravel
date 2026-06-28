@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Api\Admin\MenuItemController as AdminMenuItemController;
+use App\Http\Controllers\Api\Admin\StaffController as AdminStaffController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Cart\CartController;
 use App\Http\Controllers\Api\Delivery\DeliveryController;
@@ -79,4 +83,42 @@ Route::middleware(['auth:api', 'role:delivery,admin'])
      ->group(function () {
          Route::get('deliveries',                 [DeliveryController::class, 'index']);
          Route::patch('deliveries/{id}/status',   [DeliveryController::class, 'updateStatus']);
+     });
+
+// ======= Admin Routes =======
+Route::middleware(['auth:api', 'role:admin'])
+     ->prefix('admin')
+     ->group(function () {
+         // Main Categories
+         Route::get('categories',           [AdminCategoryController::class, 'indexMain']);
+         Route::post('categories',          [AdminCategoryController::class, 'storeMain']);
+         Route::patch('categories/{id}',    [AdminCategoryController::class, 'updateMain']);
+         Route::delete('categories/{id}',   [AdminCategoryController::class, 'destroyMain']);
+
+         // Sub Categories
+         Route::get('sub-categories',          [AdminCategoryController::class, 'indexSub']);
+         Route::post('sub-categories',         [AdminCategoryController::class, 'storeSub']);
+         Route::patch('sub-categories/{id}',   [AdminCategoryController::class, 'updateSub']);
+         Route::delete('sub-categories/{id}',  [AdminCategoryController::class, 'destroySub']);
+
+         // Sub-Sub Categories
+         Route::get('sub-sub-categories',          [AdminCategoryController::class, 'indexSubSub']);
+         Route::post('sub-sub-categories',         [AdminCategoryController::class, 'storeSubSub']);
+         Route::patch('sub-sub-categories/{id}',   [AdminCategoryController::class, 'updateSubSub']);
+         Route::delete('sub-sub-categories/{id}',  [AdminCategoryController::class, 'destroySubSub']);
+
+         // Menu Items
+         Route::get('menu-items',         [AdminMenuItemController::class, 'index']);
+         Route::post('menu-items',        [AdminMenuItemController::class, 'store']);
+         Route::patch('menu-items/{id}',  [AdminMenuItemController::class, 'update']);
+         Route::delete('menu-items/{id}', [AdminMenuItemController::class, 'destroy']);
+
+         // Staff Management
+         Route::get('staff',         [AdminStaffController::class, 'index']);
+         Route::post('staff',        [AdminStaffController::class, 'store']);
+         Route::patch('staff/{id}',  [AdminStaffController::class, 'update']);
+         Route::delete('staff/{id}', [AdminStaffController::class, 'destroy']);
+
+         // Dashboard
+         Route::get('dashboard', [AdminDashboardController::class, 'index']);
      });
