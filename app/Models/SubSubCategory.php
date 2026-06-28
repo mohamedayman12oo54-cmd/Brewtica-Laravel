@@ -16,6 +16,7 @@ class SubSubCategory extends Model
         'sub_category_id',
         'name',
         'description',
+        'image',
     ];
 
     // ====== Relationships ======
