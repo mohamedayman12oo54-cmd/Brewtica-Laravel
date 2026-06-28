@@ -172,4 +172,57 @@ class OrderTest extends TestCase
         $response->assertStatus(200)
                  ->assertJson(['data' => []]);
     }
+
+    // ==========================================
+    // CANCEL ORDER TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_customer_can_cancel_pending_order(): void
+    {
+        $user  = $this->createCustomer();
+        $order = Order::factory()->create([
+            'customer_id' => $user->customer->id,
+            'status'      => 'pending',
+        ]);
+
+        $this->actingAs($user, 'api')
+             ->deleteJson("/api/orders/{$order->id}")
+             ->assertStatus(200);
+
+        $this->assertDatabaseHas('orders', [
+            'id'     => $order->id,
+            'status' => 'cancelled',
+        ]);
+    }
+
+    /** @test */
+    public function test_customer_cannot_cancel_preparing_order(): void
+    {
+        $user  = $this->createCustomer();
+        $order = Order::factory()->create([
+            'customer_id' => $user->customer->id,
+            'status'      => 'preparing', // ← مش pending
+        ]);
+
+        $this->actingAs($user, 'api')
+             ->deleteJson("/api/orders/{$order->id}")
+             ->assertStatus(422);
+    }
+
+    /** @test */
+    public function test_customer_cannot_cancel_another_users_order(): void
+    {
+        $user1 = $this->createCustomer();
+        $user2 = $this->createCustomer();
+
+        $order = Order::factory()->create([
+            'customer_id' => $user2->customer->id,
+            'status'      => 'pending',
+        ]);
+
+        $this->actingAs($user1, 'api')
+             ->deleteJson("/api/orders/{$order->id}")
+             ->assertStatus(404); // ← مش شايف الـ Order دي أصلاً
+    }
 }
