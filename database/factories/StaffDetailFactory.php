@@ -18,7 +18,11 @@ class StaffDetailFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'job_title'  => fake()->jobTitle(),
+            'salary'     => fake()->randomFloat(2, 3000, 8000),
+            'hire_date'  => fake()->dateTimeBetween('-3 years', 'now'),
+            'shift'      => fake()->randomElement(['morning', 'evening', 'night']),
+            'department' => fake()->randomElement(['Operations', 'Kitchen', 'Delivery', 'Management']),
         ];
     }
 }
