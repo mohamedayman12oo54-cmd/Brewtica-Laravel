@@ -225,4 +225,73 @@ class OrderTest extends TestCase
              ->deleteJson("/api/orders/{$order->id}")
              ->assertStatus(404); // ← مش شايف الـ Order دي أصلاً
     }
+
+    // ==========================================
+    // STAFF TESTS
+    // ==========================================
+
+    /** @test */
+    public function test_staff_can_view_all_orders(): void
+    {
+        $staff    = $this->createStaff();
+        $customer = $this->createCustomer();
+
+        Order::factory()->count(3)->create(['customer_id' => $customer->customer->id]);
+
+        $this->actingAs($staff, 'api')
+             ->getJson('/api/staff/orders')
+             ->assertStatus(200);
+    }
+
+    /** @test */
+    public function test_staff_can_update_order_status(): void
+    {
+        $staff    = $this->createStaff();
+        $customer = $this->createCustomer();
+
+        $order = Order::factory()->create([
+            'customer_id' => $customer->customer->id,
+            'status'      => 'pending',
+        ]);
+
+        $this->actingAs($staff, 'api')
+             ->patchJson("/api/staff/orders/{$order->id}/status", [
+                 'status' => 'preparing',
+             ])
+             ->assertStatus(200);
+
+        $this->assertDatabaseHas('orders', [
+            'id'     => $order->id,
+            'status' => 'preparing',
+        ]);
+    }
+
+    /** @test */
+    public function test_staff_cannot_make_invalid_status_transition(): void
+    {
+        $staff    = $this->createStaff();
+        $customer = $this->createCustomer();
+
+        $order = Order::factory()->create([
+            'customer_id' => $customer->customer->id,
+            'status'      => 'pending',
+        ]);
+
+        // مش ممكن يروح من pending لـ delivered مباشرة
+        $this->actingAs($staff, 'api')
+             ->patchJson("/api/staff/orders/{$order->id}/status", [
+                 'status' => 'delivered',
+             ])
+             ->assertStatus(422);
+    }
+
+    /** @test */
+    public function test_customer_cannot_access_staff_routes(): void
+    {
+        $customer = $this->createCustomer();
+
+        $this->actingAs($customer, 'api')
+             ->getJson('/api/staff/orders')
+             ->assertStatus(403);
+    }
 }
