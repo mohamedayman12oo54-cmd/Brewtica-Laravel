@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\SendOrderConfirmationJob;
 use App\Models\Order;
 use App\Models\User;
+use App\OrderStatus;
 use Illuminate\Support\Facades\DB;
 
 class OrderService
@@ -93,11 +94,11 @@ class OrderService
             return ['success' => false, 'reason' => 'not_found'];
         }
 
-        if ($order->status !== 'pending') {
+        if ($order->status !== OrderStatus::PENDING) {
             return ['success' => false, 'reason' => 'cannot_cancel'];
         }
 
-        $order->update(['status' => 'cancelled']);
+        $order->update(['status' => OrderStatus::CANCELLED]);
         return ['success' => true];
     }
 }
