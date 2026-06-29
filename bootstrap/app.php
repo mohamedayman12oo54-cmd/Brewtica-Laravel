@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\Handler;
 use App\Http\Middleware\EnsureUserHasRole;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -25,14 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
-
-        $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'status'      => 'error',
-                    'message'     => 'Too many attempts. Please try again later.',
-                    'retry_after' => $e->getHeaders()['Retry-After'] ?? null,
-                ], 429);
-            }
-        });
     })->create();
+
+$app->singleton(ExceptionHandler::class, Handler::class);
+
+return $app;

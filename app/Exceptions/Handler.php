@@ -50,7 +50,7 @@ class Handler extends ExceptionHandler
 
         // 2. Route مش موجود
         if ($e instanceof NotFoundHttpException) {
-            return ApiResponse::notFound('الـ endpoint ده مش موجود');
+            return ApiResponse::notFound('This endpoint dose not exist');
         }
 
         // 3. مش Authenticated
@@ -73,7 +73,7 @@ class Handler extends ExceptionHandler
             $retryAfter = $e->getHeaders()['Retry-After'] ?? 60;
             return response()->json([
                 'status'      => 'error',
-                'message'     => 'too much — wait a bit and try again.',
+                'message'     => 'Too many attempts. Please try again later.',
                 'retry_after' => (int) $retryAfter,
                 // ↑ بنقوله كام ثانية يستنى
             ], 429);
