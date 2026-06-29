@@ -16,33 +16,42 @@ use Illuminate\Support\Facades\Route;
 
 
 // ======= Public Routes =======
-Route::prefix('auth')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
+Route::prefix('auth')->middleware('throttle:5,1')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
 });
 
+Route::prefix('auth')->middleware('throttle:10,1')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+});
+
 // ======= Protected Routes =======
-Route::prefix('auth')->middleware('auth:api')->group(function () {
-    Route::post('refresh', [AuthController::class, 'refresh']);
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::get('me', [AuthController::class, 'me']);
+Route::middleware(['auth:api', 'throttle:100,1'])->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::post('refresh', [AuthController::class, 'refresh']);
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::get('me', [AuthController::class, 'me']);
+    });
 });
 
 // ======= Menu Routes (Public) =======
-Route::prefix('menu')->group(function () {
-    Route::get('categories', [MenuController::class, 'categories']);
-    Route::get('items', [MenuController::class, 'items']);
-    Route::get('items/{id}', [MenuController::class, 'show']);
+Route::middleware('throttle:60,1')->group(function () {
+    Route::prefix('menu')->group(function () {
+        Route::get('categories', [MenuController::class, 'categories']);
+        Route::get('items', [MenuController::class, 'items']);
+        Route::get('items/{id}', [MenuController::class, 'show']);
+    });
 });
 
 // ======= Profile Routes (Protected) =======
-Route::middleware('auth:api')->prefix('profile')->group(function () {
-    Route::get('/', [ProfileController::class, 'show']);
-    Route::patch('/', [ProfileController::class, 'update']);
-    Route::patch('/password', [ProfileController::class, 'updatePassword']);
-    Route::post('/phones', [ProfileController::class, 'storePhone']);
-    Route::patch('/phones/{id}/primary', [ProfileController::class, 'setPrimary']);
-    Route::delete('/phones/{id}', [ProfileController::class, 'deletePhone']);
+Route::middleware(['auth:api', 'throttle:100,1'])->group(function () {
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'show']);
+        Route::patch('/', [ProfileController::class, 'update']);
+        Route::patch('/password', [ProfileController::class, 'updatePassword']);
+        Route::post('/phones', [ProfileController::class, 'storePhone']);
+        Route::patch('/phones/{id}/primary', [ProfileController::class, 'setPrimary']);
+        Route::delete('/phones/{id}', [ProfileController::class, 'deletePhone']);
+    });
 });
 
 // ======= Favorites Routes (Protected) =======
@@ -70,7 +79,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // ======= Staff Routes =======
-Route::middleware(['auth:api', 'role:staff,admin'])
+Route::middleware(['auth:api', 'role:staff,admin', 'throttle:100,1'])
      ->prefix('staff')
      ->group(function () {
          Route::get('orders',                     [StaffOrderController::class, 'index']);
@@ -86,7 +95,7 @@ Route::middleware(['auth:api', 'role:delivery,admin'])
      });
 
 // ======= Admin Routes =======
-Route::middleware(['auth:api', 'role:admin'])
+Route::middleware(['auth:api', 'role:admin', 'throttle:200,1'])
      ->prefix('admin')
      ->group(function () {
          // Main Categories
