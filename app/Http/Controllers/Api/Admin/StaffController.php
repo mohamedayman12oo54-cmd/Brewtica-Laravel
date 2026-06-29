@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreStaffRequest;
 use App\Http\Requests\Admin\UpdateStaffRequest;
@@ -23,10 +24,18 @@ class StaffController extends Controller
             'role' => $request->query('role'),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => StaffResource::collection($users),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => StaffResource::collection($users),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(StaffResource::collection($users));
+
+        // =============================
     }
 
     // POST /api/admin/staff
@@ -34,11 +43,22 @@ class StaffController extends Controller
     {
         $user = $this->staffService->createStaff($request->validated());
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Staff user created successfully.',
-            'data'    => new StaffResource($user),
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Staff user created successfully.',
+            //     'data'    => new StaffResource($user),
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                new StaffResource($user),
+                'Staff user created successfully.'
+            );
+
+        // =============================
     }
 
     // PATCH /api/admin/staff/{id}
@@ -47,17 +67,36 @@ class StaffController extends Controller
         $result = $this->staffService->updateUser($id, $request->validated());
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'User not found.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'User not found.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('User not found.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'User updated successfully.',
-            'data'    => new StaffResource($result['user']),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'User updated successfully.',
+            //     'data'    => new StaffResource($result['user']),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new StaffResource($result['user']),
+                'User updated successfully.'
+            );
+
+        // =============================
     }
 
     // DELETE /api/admin/staff/{id}
@@ -73,20 +112,40 @@ class StaffController extends Controller
                 default          => 'User not found.',
             };
 
-            $status = match ($result['reason']) {
-                'not_found' => 404,
-                default     => 422,
-            };
+            // Before ApiResponse Integration
 
-            return response()->json([
-                'status'  => 'error',
-                'message' => $message,
-            ], $status);
+                // $status = match ($result['reason']) {
+                //     'not_found' => 404,
+                //     default     => 422,
+                // };
+                //
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => $message,
+                // ], $status);
+
+            // After ApiResponse Integration
+
+                if ($result['reason'] === 'not_found') {
+                    return ApiResponse::notFound($message);
+                }
+
+                return ApiResponse::error($message, 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'User deleted successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'User deleted successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'User deleted successfully.');
+
+        // =============================
     }
 }

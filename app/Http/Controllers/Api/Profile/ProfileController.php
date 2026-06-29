@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Profile;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
@@ -23,10 +24,18 @@ class ProfileController extends Controller
         $user = auth('api')->user();
         $profile = $this->profileService->getProfile($user);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => new ProfileResource($profile)
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => new ProfileResource($profile)
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(new ProfileResource($profile));
+
+        // =============================
     }
 
     // PATCH /api/profile
@@ -35,11 +44,22 @@ class ProfileController extends Controller
         $user = auth('api')->user();
         $profile = $this->profileService->updateProfile($user, $request->validated());
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Your profile data have been updated',
-            'data' => new ProfileResource($profile)
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'Your profile data have been updated',
+            //     'data' => new ProfileResource($profile)
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new ProfileResource($profile),
+                'Your profile data have been updated'
+            );
+
+        // =============================
     }
 
     // PATCH /api/profile/password
@@ -49,16 +69,32 @@ class ProfileController extends Controller
         $updated = $this->profileService->updatePassword($user, $request->validated());
 
         if(!$updated){
-            return response()->json([
-                'status' => 'success',
-                'message' => 'The current password is incorrect.'
-            ], 422);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status' => 'success',
+                //     'message' => 'The current password is incorrect.'
+                // ], 422);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::error('The current password is incorrect.', 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'The password has been changed successfully.'
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'The password has been changed successfully.'
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The password has been changed successfully.');
+
+        // =============================
     }
 
     // POST api/profile/phones
@@ -67,15 +103,30 @@ class ProfileController extends Controller
         $user = auth('api')->user();
         $phone = $this->profileService->storePhone($user, $request->validated()['phone']);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'The phone number has been added successfully.',
-            'data' => [
-                'id' => $phone->id,
-                'phone' => $phone->phone,
-                'is_primary' => (bool) $phone->is_primary
-            ],
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'The phone number has been added successfully.',
+            //     'data' => [
+            //         'id' => $phone->id,
+            //         'phone' => $phone->phone,
+            //         'is_primary' => (bool) $phone->is_primary
+            //     ],
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                [
+                    'id' => $phone->id,
+                    'phone' => $phone->phone,
+                    'is_primary' => (bool) $phone->is_primary
+                ],
+                'The phone number has been added successfully.'
+            );
+
+        // =============================
     }
 
     // PATCH api/profile/phones/{id}/primary
@@ -85,16 +136,32 @@ class ProfileController extends Controller
         $result = $this->profileService->setPrimaryPhone($user, $id);
 
         if(!$result){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'This phone number not found!',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status' => 'error',
+                //     'message' => 'This phone number not found!',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('This phone number not found!');
+
+            // =============================
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'The primary phone number has been successfully set.'
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'The primary phone number has been successfully set.'
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The primary phone number has been successfully set.');
+
+        // =============================
     }
 
     // DELETE api/profile/phones/{id}
@@ -104,22 +171,46 @@ class ProfileController extends Controller
         $result = $this->profileService->deletePhone($user, $id);
 
         if($result === 'not_found'){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'This phone number not found!',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status' => 'error',
+                //     'message' => 'This phone number not found!',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('This phone number not found!');
+
+            // =============================
         }
 
         if($result === 'cannot_delete_only_primary'){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'The sole primary phone number cannot be deleted.',
-            ], 422);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status' => 'error',
+                //     'message' => 'The sole primary phone number cannot be deleted.',
+                // ], 422);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::error('The sole primary phone number cannot be deleted.', 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'The phone number has been deleted successfully.'
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'The phone number has been deleted successfully.'
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The phone number has been deleted successfully.');
+
+        // =============================
     }
 }

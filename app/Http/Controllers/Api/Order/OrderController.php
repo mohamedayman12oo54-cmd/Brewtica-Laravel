@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Order;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Order\OrderResourse;
 use App\Services\OrderService;
@@ -25,17 +26,36 @@ class OrderController extends Controller
                 default      => 'An error occured',
             };
 
-            return response()->json([
-                'status'  => 'error',
-                'message' => $message,
-            ], 422);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => $message,
+                // ], 422);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::error($message, 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'The order has been created successfully.',
-            'data'    => new OrderResourse($result['order']),
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'The order has been created successfully.',
+            //     'data'    => new OrderResourse($result['order']),
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                new OrderResourse($result['order']),
+                'The order has been created successfully.'
+            );
+
+        // =============================
     }
 
     // GET /api/orders
@@ -44,10 +64,18 @@ class OrderController extends Controller
         $user   = auth('api')->user();
         $orders = $this->orderService->getCustomerOrders($user);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => OrderResourse::collection($orders),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => OrderResourse::collection($orders),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(OrderResourse::collection($orders));
+
+        // =============================
     }
 
     // GET /api/orders/{id}
@@ -57,16 +85,32 @@ class OrderController extends Controller
         $order = $this->orderService->getOrder($user, $id);
 
         if (!$order) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'The order not found.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'The order not found.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('The order not found.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => new OrderResourse($order),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => new OrderResourse($order),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(new OrderResourse($order));
+
+        // =============================
     }
 
     // DELETE /api/orders/{id}
@@ -82,17 +126,37 @@ class OrderController extends Controller
                 default          => 'An error occured.',
             };
 
-            $status = $result['reason'] === 'not_found' ? 404 : 422;
+            // Before ApiResponse Integration
 
-            return response()->json([
-                'status'  => 'error',
-                'message' => $message,
-            ], $status);
+                // $status = $result['reason'] === 'not_found' ? 404 : 422;
+                //
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => $message,
+                // ], $status);
+
+            // After ApiResponse Integration
+
+                if ($result['reason'] === 'not_found') {
+                    return ApiResponse::notFound($message);
+                }
+
+                return ApiResponse::error($message, 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'The order has been cancled successfully',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'The order has been cancled successfully',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The order has been cancled successfully');
+
+        // =============================
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Menu;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Menu\MainCategoryResource;
 use App\Http\Resources\Menu\MenuItemDetailResource;
@@ -21,10 +22,18 @@ class MenuController extends Controller
     {
         $categories = $this->menuService->getAllCategories();
 
-        return response()->json([
-            'status' => 'success',
-            'data' => MainCategoryResource::collection($categories),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => MainCategoryResource::collection($categories),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(MainCategoryResource::collection($categories));
+
+        // =============================
     }
 
     // GET /api/menu/items
@@ -35,10 +44,18 @@ class MenuController extends Controller
             'q' => $request->query('q'),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => MenuItemResource::collection($items),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => MenuItemResource::collection($items),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(MenuItemResource::collection($items));
+
+        // =============================
     }
 
     // GET /api/menu/items/{id}
@@ -46,9 +63,17 @@ class MenuController extends Controller
     {
         $item = $this->menuService->getItem($id);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => new MenuItemDetailResource($item),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => new MenuItemDetailResource($item),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(new MenuItemDetailResource($item));
+
+        // =============================
     }
 }

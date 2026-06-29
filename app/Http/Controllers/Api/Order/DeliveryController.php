@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Delivery;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Delivery\UpdateDeliveryStatusRequest;
 use App\Services\DeliveryService;
@@ -19,10 +20,18 @@ class DeliveryController extends Controller
         $user       = auth('api')->user();
         $deliveries = $this->deliveryService->getMyDeliveries($user);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => $deliveries,
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => $deliveries,
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success($deliveries);
+
+        // =============================
     }
 
     // PATCH /api/delivery/deliveries/{id}/status
@@ -38,17 +47,37 @@ class DeliveryController extends Controller
                 default              => 'An error occured',
             };
 
-            $httpStatus = $result['reason'] === 'not_found' ? 404 : 422;
+            // Before ApiResponse Integration
 
-            return response()->json([
-                'status'  => 'error',
-                'message' => $message,
-            ], $httpStatus);
+                // $httpStatus = $result['reason'] === 'not_found' ? 404 : 422;
+                //
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => $message,
+                // ], $httpStatus);
+
+            // After ApiResponse Integration
+
+                if ($result['reason'] === 'not_found') {
+                    return ApiResponse::notFound($message);
+                }
+
+                return ApiResponse::error($message, 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'The delivery status has been updated',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'The delivery status has been updated',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The delivery status has been updated');
+
+        // =============================
     }
 }

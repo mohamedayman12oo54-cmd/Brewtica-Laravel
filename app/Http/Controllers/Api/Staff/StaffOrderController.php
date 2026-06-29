@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Staff;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Staff\UpdateOrderStatusRequest;
 use App\Http\Resources\Order\OrderResourse;
@@ -22,10 +23,18 @@ class StaffOrderController extends Controller
             'status' => $request->query('status'),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => OrderResourse::collection($orders),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => OrderResourse::collection($orders),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(OrderResourse::collection($orders));
+
+        // =============================
     }
 
     // PATCH /api/staff/orders/{id}/status
@@ -40,18 +49,41 @@ class StaffOrderController extends Controller
                 default              => 'An error occured',
             };
 
-            $httpStatus = $result['reason'] === 'not_found' ? 404 : 422;
+            // Before ApiResponse Integration
 
-            return response()->json([
-                'status'  => 'error',
-                'message' => $message,
-            ], $httpStatus);
+                // $httpStatus = $result['reason'] === 'not_found' ? 404 : 422;
+                //
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => $message,
+                // ], $httpStatus);
+
+            // After ApiResponse Integration
+
+                if ($result['reason'] === 'not_found') {
+                    return ApiResponse::notFound($message);
+                }
+
+                return ApiResponse::error($message, 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'The status of order has been updated',
-            'data'    => new OrderResourse($result['order']),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'The status of order has been updated',
+            //     'data'    => new OrderResourse($result['order']),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new OrderResourse($result['order']),
+                'The status of order has been updated'
+            );
+
+        // =============================
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreMenuItemRequest;
 use App\Http\Requests\Admin\UpdateMenuItemRequest;
@@ -23,10 +24,18 @@ class MenuItemController extends Controller
             'sub_sub_category_id' => $request->query('sub_sub_category_id'),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => MenuItemResource::collection($items),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => MenuItemResource::collection($items),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(MenuItemResource::collection($items));
+
+        // =============================
     }
 
     // POST /api/admin/menu-items
@@ -37,11 +46,22 @@ class MenuItemController extends Controller
             $request->file('image')
         );
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Menu item created successfully.',
-            'data'    => new MenuItemResource($item),
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Menu item created successfully.',
+            //     'data'    => new MenuItemResource($item),
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                new MenuItemResource($item),
+                'Menu item created successfully.'
+            );
+
+        // =============================
     }
 
     // PATCH /api/admin/menu-items/{id}
@@ -54,17 +74,36 @@ class MenuItemController extends Controller
         );
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Menu item not found.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'Menu item not found.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('Menu item not found.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Menu item updated successfully.',
-            'data'    => new MenuItemResource($result['item']),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Menu item updated successfully.',
+            //     'data'    => new MenuItemResource($result['item']),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new MenuItemResource($result['item']),
+                'Menu item updated successfully.'
+            );
+
+        // =============================
     }
 
     // DELETE /api/admin/menu-items/{id}
@@ -78,17 +117,37 @@ class MenuItemController extends Controller
                 default      => 'Menu item not found.',
             };
 
-            $status = $result['reason'] === 'has_orders' ? 422 : 404;
+            // Before ApiResponse Integration
 
-            return response()->json([
-                'status'  => 'error',
-                'message' => $message,
-            ], $status);
+                // $status = $result['reason'] === 'has_orders' ? 422 : 404;
+                //
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => $message,
+                // ], $status);
+
+            // After ApiResponse Integration
+
+                if ($result['reason'] === 'has_orders') {
+                    return ApiResponse::error($message, 422);
+                }
+
+                return ApiResponse::notFound($message);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Menu item deleted successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Menu item deleted successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'Menu item deleted successfully.');
+
+        // =============================
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Favorite;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Favorite\FavoriteResource;
 use App\Services\FavoriteService;
@@ -21,10 +22,18 @@ class FavoriteController extends Controller
         $user = auth('api')->user();
         $favorites = $this->favoriteService->getFavorites($user);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => FavoriteResource::collection($favorites),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data' => FavoriteResource::collection($favorites),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(FavoriteResource::collection($favorites));
+
+        // =============================
     }
 
     // POST /api/favorite/{menuItemId}
@@ -38,11 +47,22 @@ class FavoriteController extends Controller
             : 'The item has been removed successfully!'
         ;
 
-        return response()->json([
-            'status' => 'success',
-            'action' => $result['action'],
-            'message' => $message,
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'action' => $result['action'],
+            //     'message' => $message,
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                message: $message,
+                extra: ['action' => $result['action']]
+            );
+
+        // =============================
     }
 
     // DELETE /api/favorite/{menuItemId}
@@ -52,15 +72,31 @@ class FavoriteController extends Controller
         $removed = $this->favoriteService->remove($user, $menuItemId);
 
         if(!$removed){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'The item not found in favorites list!'
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status' => 'error',
+                //     'message' => 'The item not found in favorites list!'
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('The item not found in favorites list!');
+
+            // =============================
         }
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'The item has been removed from favorites list'
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'message' => 'The item has been removed from favorites list'
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The item has been removed from favorites list');
+
+        // =============================
     }
 }

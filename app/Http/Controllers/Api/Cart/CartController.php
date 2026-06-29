@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Cart;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cart\AddToCartRequest;
 use App\Http\Requests\Cart\UpdateCartRequest;
@@ -21,10 +22,18 @@ class CartController extends Controller
         $user = auth('api')->user();
         $cart = $this->cartService->getCart($user);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => $cart,
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => $cart,
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success($cart);
+
+        // =============================
     }
 
     // Post /api/cart
@@ -34,16 +43,32 @@ class CartController extends Controller
         $result = $this->cartService->addToCart($user, $request->validated());
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'This size is not available for this item.',
-            ], 422);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'This size is not available for this item.',
+                // ], 422);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::error('This size is not available for this item.', 422);
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Item added to cart successfully.',
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Item added to cart successfully.',
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(message: 'Item added to cart successfully.');
+
+        // =============================
     }
 
     // PATCH /api/cart/{menuItemId}/{size}
@@ -51,25 +76,44 @@ class CartController extends Controller
     {
         $user     = auth('api')->user();
         $quantity = $request->validated()['quantity'];
-        
+
         $result   = $this->cartService->updateCartItem($user, $menuItemId, $size, $quantity);
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Item not found in the cart.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'Item not found in the cart.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('Item not found in the cart.');
+
+            // =============================
         }
 
         $message = $result['action'] === 'removed'
             ? 'Item removed from cart successfully.'
             : 'Quantity updated successfully.';
 
-        return response()->json([
-            'status'  => 'success',
-            'action'  => $result['action'],
-            'message' => $message,
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'action'  => $result['action'],
+            //     'message' => $message,
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                message: $message,
+                extra: ['action' => $result['action']]
+            );
+
+        // =============================
     }
 
     // DELETE /api/cart/{menuItemId}/{size}
@@ -79,16 +123,32 @@ class CartController extends Controller
         $removed = $this->cartService->removeCartItem($user, $menuItemId, $size);
 
         if (!$removed) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Item not found in the cart.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'Item not found in the cart.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('Item not found in the cart.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Item removed from cart successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Item removed from cart successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'Item removed from cart successfully.');
+
+        // =============================
     }
 
     // DELETE /api/cart
@@ -97,9 +157,17 @@ class CartController extends Controller
         $user = auth('api')->user();
         $this->cartService->clearCart($user);
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'The cart has been removed successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'The cart has been removed successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'The cart has been removed successfully.');
+
+        // =============================
     }
 }

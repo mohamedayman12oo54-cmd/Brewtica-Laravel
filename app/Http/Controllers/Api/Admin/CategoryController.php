@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCategoryRequest;
 use App\Http\Requests\Admin\StoreSubCategoryRequest;
@@ -27,10 +28,18 @@ class CategoryController extends Controller
     {
         $categories = $this->categoryService->getMainCategories();
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => CategoryResource::collection($categories),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => CategoryResource::collection($categories),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(CategoryResource::collection($categories));
+
+        // =============================
     }
 
     // POST /api/admin/categories
@@ -38,11 +47,22 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->createMainCategory($request->validated());
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Main category created successfully.',
-            'data'    => new CategoryResource($category),
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Main category created successfully.',
+            //     'data'    => new CategoryResource($category),
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                new CategoryResource($category),
+                'Main category created successfully.'
+            );
+
+        // =============================
     }
 
     // PATCH /api/admin/categories/{id}
@@ -51,17 +71,36 @@ class CategoryController extends Controller
         $result = $this->categoryService->updateMainCategory($id, $request->validated());
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Main category not found.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'Main category not found.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('Main category not found.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Main category updated successfully.',
-            'data'    => new CategoryResource($result['category']),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Main category updated successfully.',
+            //     'data'    => new CategoryResource($result['category']),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new CategoryResource($result['category']),
+                'Main category updated successfully.'
+            );
+
+        // =============================
     }
 
     // DELETE /api/admin/categories/{id}
@@ -73,10 +112,18 @@ class CategoryController extends Controller
             return $this->deleteErrorResponse($result['reason']);
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Main category deleted successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Main category deleted successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'Main category deleted successfully.');
+
+        // =============================
     }
 
     // ======= Sub Categories =======
@@ -88,10 +135,18 @@ class CategoryController extends Controller
             'main_category_id' => $request->query('main_category_id'),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => CategoryResource::collection($subCategories),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => CategoryResource::collection($subCategories),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(CategoryResource::collection($subCategories));
+
+        // =============================
     }
 
     // POST /api/admin/sub-categories
@@ -102,11 +157,22 @@ class CategoryController extends Controller
             $request->file('image')
         );
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Sub category created successfully.',
-            'data'    => new CategoryResource($subCategory),
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Sub category created successfully.',
+            //     'data'    => new CategoryResource($subCategory),
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                new CategoryResource($subCategory),
+                'Sub category created successfully.'
+            );
+
+        // =============================
     }
 
     // PATCH /api/admin/sub-categories/{id}
@@ -119,17 +185,36 @@ class CategoryController extends Controller
         );
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Sub category not found.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'Sub category not found.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('Sub category not found.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Sub category updated successfully.',
-            'data'    => new CategoryResource($result['category']),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Sub category updated successfully.',
+            //     'data'    => new CategoryResource($result['category']),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new CategoryResource($result['category']),
+                'Sub category updated successfully.'
+            );
+
+        // =============================
     }
 
     // DELETE /api/admin/sub-categories/{id}
@@ -141,10 +226,18 @@ class CategoryController extends Controller
             return $this->deleteErrorResponse($result['reason']);
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Sub category deleted successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Sub category deleted successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'Sub category deleted successfully.');
+
+        // =============================
     }
 
     // ======= Sub-Sub Categories =======
@@ -156,10 +249,18 @@ class CategoryController extends Controller
             'sub_category_id' => $request->query('sub_category_id'),
         ]);
 
-        return response()->json([
-            'status' => 'success',
-            'data'   => CategoryResource::collection($subSubCategories),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'data'   => CategoryResource::collection($subSubCategories),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(CategoryResource::collection($subSubCategories));
+
+        // =============================
     }
 
     // POST /api/admin/sub-sub-categories
@@ -170,11 +271,22 @@ class CategoryController extends Controller
             $request->file('image')
         );
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Sub-sub category created successfully.',
-            'data'    => new CategoryResource($subSubCategory),
-        ], 201);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Sub-sub category created successfully.',
+            //     'data'    => new CategoryResource($subSubCategory),
+            // ], 201);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::created(
+                new CategoryResource($subSubCategory),
+                'Sub-sub category created successfully.'
+            );
+
+        // =============================
     }
 
     // PATCH /api/admin/sub-sub-categories/{id}
@@ -187,17 +299,36 @@ class CategoryController extends Controller
         );
 
         if (!$result['success']) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Sub-sub category not found.',
-            ], 404);
+            // Before ApiResponse Integration
+
+                // return response()->json([
+                //     'status'  => 'error',
+                //     'message' => 'Sub-sub category not found.',
+                // ], 404);
+
+            // After ApiResponse Integration
+
+                return ApiResponse::notFound('Sub-sub category not found.');
+
+            // =============================
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Sub-sub category updated successfully.',
-            'data'    => new CategoryResource($result['category']),
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Sub-sub category updated successfully.',
+            //     'data'    => new CategoryResource($result['category']),
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(
+                new CategoryResource($result['category']),
+                'Sub-sub category updated successfully.'
+            );
+
+        // =============================
     }
 
     // DELETE /api/admin/sub-sub-categories/{id}
@@ -209,10 +340,18 @@ class CategoryController extends Controller
             return $this->deleteErrorResponse($result['reason']);
         }
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Sub-sub category deleted successfully.',
-        ]);
+        // Before ApiResponse Integration
+
+            // return response()->json([
+            //     'status'  => 'success',
+            //     'message' => 'Sub-sub category deleted successfully.',
+            // ]);
+
+        // After ApiResponse Integration
+
+            return ApiResponse::success(message: 'Sub-sub category deleted successfully.');
+
+        // =============================
     }
 
     // ======= Helpers =======
@@ -223,11 +362,23 @@ class CategoryController extends Controller
             default     => 'Category not found.',
         };
 
-        $status = $reason === 'has_items' ? 422 : 404;
+        // Before ApiResponse Integration
 
-        return response()->json([
-            'status'  => 'error',
-            'message' => $message,
-        ], $status);
+            // $status = $reason === 'has_items' ? 422 : 404;
+            //
+            // return response()->json([
+            //     'status'  => 'error',
+            //     'message' => $message,
+            // ], $status);
+
+        // After ApiResponse Integration
+
+            if ($reason === 'has_items') {
+                return ApiResponse::error($message, 422);
+            }
+
+            return ApiResponse::notFound($message);
+
+        // =============================
     }
 }
