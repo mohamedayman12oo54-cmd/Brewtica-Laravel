@@ -10,14 +10,15 @@ class ApiResponse
     public static function success(
         mixed $data = null,
         string $message = '',
-        int $status = 200
+        int $status = 200,
+        array $extra = []
     ): JsonResponse {
         $response = ['status' => 'success'];
 
         if ($message) $response['message'] = $message;
         if ($data !== null) $response['data'] = $data;
 
-        return response()->json($response, $status);
+        return response()->json([...$response, ...$extra], $status);
     }
 
     // ======= Error =======
@@ -39,9 +40,10 @@ class ApiResponse
    // ======= Created =======
     public static function created(
         mixed $data = null,
-        string $message = 'Successfully created.'
+        string $message = 'Successfully created.',
+        array $extra = []
     ): JsonResponse {
-        return self::success($data, $message, 201);
+        return self::success($data, $message, 201, $extra);
     }
 
     // ======= Not Found =======
