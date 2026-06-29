@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsureUserHasRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -24,4 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        $exceptions->render(function (ThrottleRequestsException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'status'      => 'error',
+                    'message'     => 'Too many attempts. Please try again later.',
+                    'retry_after' => $e->getHeaders()['Retry-After'] ?? null,
+                ], 429);
+            }
+        });
     })->create();
