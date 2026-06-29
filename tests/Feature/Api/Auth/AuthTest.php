@@ -30,7 +30,7 @@ class AuthTest extends TestCase
                  ->assertJsonStructure([
                     'status',
                     'message',
-                    'user' => ['id', 'f_name', 'l_name', 'email', 'role'],
+                    'data' => ['id', 'f_name', 'l_name', 'email', 'role'],
                     'token',
                     'token_type',
                     'expires_in',
@@ -42,7 +42,7 @@ class AuthTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('customers', [
-            'user_id' => $response->json('user.id'),
+            'user_id' => $response->json('data.id'),
         ]);
 
         $response->assertJsonMissing(['password']);
@@ -122,9 +122,7 @@ class AuthTest extends TestCase
         $response->assertStatus(200)
                  ->assertJsonStructure([
                     'status',
-                    'token',
-                    'token_type',
-                    'expires_in',
+                    'data' => ['token', 'token_type', 'expires_in'],
                  ]);
     }
 
@@ -168,7 +166,7 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJson([
-                    'user' => [
+                    'data' => [
                         'id' => $user->id,
                         'email' => $user->email,
                         'f_name' => $user->f_name,
